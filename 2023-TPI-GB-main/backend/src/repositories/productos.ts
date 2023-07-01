@@ -12,9 +12,9 @@ export interface ProductoRepository {
 }
 
 export class PrismaProductoRepository implements ProductoRepository {
-  prisma: PrismaClient;
-  constructor() {
-    this.prisma = new PrismaClient();
+  private prisma: PrismaClient;
+  constructor(client: PrismaClient) {
+    this.prisma = client;
   }
 
   async getAll(): Promise<Result<Producto[], ApiError>> {

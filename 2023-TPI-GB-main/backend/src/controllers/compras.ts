@@ -1,22 +1,32 @@
-import { ProductoService } from "../services/productos.js";
+import { CompraService } from "../services/compras.js";
 import { Request, RequestHandler } from "express";
 import Joi from "joi";
-import { Producto } from "../models/producto.js";
 import { ApiError } from "../utils/apierrors.js";
+import { Compra } from "../models/compra.js";
+import { LineaCompra } from "../models/lineaCompra.js";
 
-export class ProductoController {
-  service: ProductoService;
+export class CompraController {
+  service: CompraService;
 
-  reqSchema = Joi.object<Producto>({
+  reqSchema = Joi.object<Compra>({
     id: Joi.number().integer().positive(),
-    nombre: Joi.string().required(),
-    stock: Joi.number().integer().required(),
-    precio: Joi.number().required(),
-    categoria: Joi.string(),
-    fechaActualizacion: Joi.date(),
+    fecha: Joi.date(),
+    proveedor: Joi.string().allow(""),
+    lineas: Joi.array()
+      .required()
+      .items(
+        Joi.object<LineaCompra>({
+          linea: Joi.number().integer().positive().required(),
+          precioUnitario: Joi.number().required(),
+          cantidad: Joi.number().integer().positive().required(),
+          producto: Joi.object({
+            id: Joi.number().integer().positive().required(),
+          }).required(),
+        })
+      ),
   });
 
-  constructor(service: ProductoService) {
+  constructor(service: CompraService) {
     this.service = service;
   }
 
@@ -28,14 +38,15 @@ export class ProductoController {
         return;
       }
 
-      const prod = this.validateBody(req.body);
-      if (prod === null) {
+      const compra = this.validateBody(req.body);
+      if (compra === null) {
         res.status(400).json(new ApiError(400, "body inválido"));
         return;
       }
-      const prodRes = await this.service.update(prod);
-      prodRes.match(
-        (updatedProd) => res.json(updatedProd),
+
+      const compraRes = await this.service.update(compra);
+      compraRes.match(
+        (compraUpdated) => res.json(compraUpdated),
         (err) => res.status(err.status).json(err)
       );
     };
@@ -49,8 +60,8 @@ export class ProductoController {
         return;
       }
 
-      const prodResult = await this.service.getByID(id);
-      prodResult.match(
+      const compraResult = await this.service.getByID(id);
+      compraResult.match(
         (prod) => res.json(prod),
         (err) => res.status(err.status).json(err)
       );
@@ -65,8 +76,8 @@ export class ProductoController {
         return;
       }
 
-      const prodDeleted = await this.service.deleteByID(id);
-      prodDeleted.match(
+      const compraDeleted = await this.service.deleteByID(id);
+      compraDeleted.match(
         (_) => res.status(204).send(),
         (error) => res.status(error.status).json(error)
       );
@@ -75,15 +86,15 @@ export class ProductoController {
 
   create(): RequestHandler {
     return async (req, res) => {
-      const prod = this.validateBody(req.body);
-      if (prod === null) {
+      const compra = this.validateBody(req.body);
+      if (compra === null) {
         res.status(400).json(new ApiError(400, "body inválido"));
         return;
       }
 
-      const prodRes = await this.service.create(prod);
-      prodRes.match(
-        (prod) => res.status(201).json(prod),
+      const compraRes = await this.service.create(compra);
+      compraRes.match(
+        (compra) => res.status(201).json(compra),
         (err) => res.status(err.status).json(err)
       );
     };
@@ -91,15 +102,15 @@ export class ProductoController {
 
   getAll(): RequestHandler {
     return async (_req, res) => {
-      const prodsResult = await this.service.getAll();
-      prodsResult.match(
-        (prods) => res.json(prods),
+      const comprasResult = await this.service.getAll();
+      comprasResult.match(
+        (compras) => res.json(compras),
         (err) => res.status(err.status).json(err)
       );
     };
   }
 
-  private validateBody(body: any): Producto | null {
+  private validateBody(body: any): Compra | null {
     try {
       return Joi.attempt(body, this.reqSchema);
     } catch (err) {
