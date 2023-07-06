@@ -8,18 +8,26 @@ import {
   Icon,
   HStack,
   FlexProps,
+  Image,
+  Container,
+  Badge,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { IconType } from "react-icons";
-import { BsFillBoxFill, BsFillCartFill } from "react-icons/bs";
-import { FiHome, FiTrendingUp, FiSettings } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { BsCart2, BsTags } from "react-icons/bs";
+import { PiPackage } from "react-icons/pi";
+import { BiLogOut } from "react-icons/bi";
+import { MdQueryStats } from "react-icons/md";
+import { FiHome } from "react-icons/fi";
+import { Link, useNavigate } from "react-router-dom";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 const LINK_ITEMS = [
   { name: "Inicio", icon: FiHome, url: "/home" },
-  { name: "Productos", icon: BsFillBoxFill, url: "/productos" },
-  { name: "Ventas", icon: FiTrendingUp, url: "/ventas" },
-  { name: "Compras", icon: BsFillCartFill, url: "/compras" },
-  { name: "Ajustes", icon: FiSettings, url: "/config" },
+  { name: "Productos", icon: PiPackage, url: "/productos" },
+  { name: "Ventas", icon: BsTags, url: "/ventas" },
+  { name: "Compras", icon: BsCart2, url: "/compras" },
+  { name: "Informes", icon: MdQueryStats, url: "/informes" },
 ];
 
 interface NavItemProps extends FlexProps {
@@ -53,6 +61,10 @@ interface SidebarProps extends BoxProps {
 }
 
 export function SidebarContent({ onClose, ...rest }: SidebarProps) {
+  const { currentUser, logout } = useCurrentUser();
+  const navigate = useNavigate();
+  const [isLargerThanMd] = useMediaQuery("(min-width: 768px)");
+
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
@@ -63,17 +75,32 @@ export function SidebarContent({ onClose, ...rest }: SidebarProps) {
       h="full"
       {...rest}
     >
-      <HStack h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Logo
-        </Text>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
+      <HStack h="20" marginLeft="8">
+        <Image width="45px" src="/images/favicon.jpg" />
+        <Container>
+          <Text fontSize="2xl">El Bar</Text>
+          <Text fontSize="md">
+            de <Badge colorScheme="orange">{currentUser}</Badge>
+          </Text>
+        </Container>
+        {!isLargerThanMd && <CloseButton onClick={onClose} marginRight="8" />}
       </HStack>
       {LINK_ITEMS.map((link) => (
-        <Link key={link.name} to={link.url}>
+        <Link key={link.name} to={link.url} onClick={onClose}>
           <NavItem icon={link.icon}>{link.name}</NavItem>
         </Link>
       ))}
+      {currentUser && (
+        <NavItem
+          icon={BiLogOut}
+          onClick={() => {
+            logout();
+            navigate("/");
+          }}
+        >
+          Cerrar Sesión
+        </NavItem>
+      )}
     </Box>
   );
 }

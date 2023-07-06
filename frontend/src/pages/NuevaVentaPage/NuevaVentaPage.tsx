@@ -46,6 +46,17 @@ function LineaVentaInput({ linea, onChange }: LineaVentaInputProps) {
       <Td isNumeric>{linea.cantidad}</Td>
       <Td>
         <Button
+          marginRight="10px"
+          onClick={() =>
+            onChange({
+              ...linea,
+              cantidad: linea.cantidad === 0 ? 0 : linea.cantidad - 1,
+            })
+          }
+        >
+          -
+        </Button>
+        <Button
           onClick={() =>
             onChange({
               ...linea,
@@ -57,17 +68,6 @@ function LineaVentaInput({ linea, onChange }: LineaVentaInputProps) {
           }
         >
           +
-        </Button>
-        <Button
-          marginLeft="10px"
-          onClick={() =>
-            onChange({
-              ...linea,
-              cantidad: linea.cantidad === 0 ? 0 : linea.cantidad - 1,
-            })
-          }
-        >
-          -
         </Button>
       </Td>
     </Tr>
@@ -93,7 +93,7 @@ export default function NuevaVentaPage() {
         title: "Venta realizada.",
         description: `Venta registrada correctamente.`,
         status: "success",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
       navigate(-1);
@@ -103,7 +103,7 @@ export default function NuevaVentaPage() {
         title: "Error al crear la venta.",
         description: `Intente de nuevo.`,
         status: "error",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
     },
@@ -203,13 +203,17 @@ export default function NuevaVentaPage() {
                   </Thead>
                   <Tbody>
                     {state.lineas.map((l) => (
-                      <LineaVentaInput linea={l} onChange={handleLineaChange} />
+                      <LineaVentaInput
+                        linea={l}
+                        key={l.linea}
+                        onChange={handleLineaChange}
+                      />
                     ))}
                   </Tbody>
                 </Table>
               </TableContainer>
               <Text alignSelf="flex-start" marginLeft="60px">
-                Precio total: {precioTotal.toFixed(2)}$
+                Precio total: {precioTotal.toFixed(2)} $
               </Text>
               <HStack>
                 <Button variant="secondary" onClick={() => navigate(-1)}>

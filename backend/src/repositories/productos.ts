@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, producto } from "@prisma/client";
 import { Result, ok, err } from "neverthrow";
 import { ApiError } from "../utils/apierrors.js";
 import { Producto } from "../models/producto.js";
@@ -20,7 +20,7 @@ export class PrismaProductoRepository implements ProductoRepository {
   async getAll(): Promise<Result<Producto[], ApiError>> {
     try {
       const prods = await this.prisma.producto.findMany();
-      return ok(prods);
+      return ok(prods.map((p) => toModel(p)));
     } catch (e) {
       return err(new ApiError(500, "Error al intentar buscar los productos"));
     }
@@ -31,7 +31,7 @@ export class PrismaProductoRepository implements ProductoRepository {
       const createdProd = await this.prisma.producto.create({
         data: { ...producto, fechaActualizacion: undefined },
       });
-      return ok(createdProd);
+      return ok(toModel(createdProd));
     } catch (e) {
       return err(new ApiError(500, "Error al intentar crear el producto"));
     }
@@ -75,8 +75,15 @@ export class PrismaProductoRepository implements ProductoRepository {
   }
 }
 
+function toModel(producto: producto): Producto {
+  return {
+    ...producto,
+    precio: producto.precio.toNumber(),
+  };
+}
+
 async function awaitQuery(
-  promise: Promise<Producto | null>,
+  promise: Promise<producto | null>,
   notFoundMsg: string,
   errorMsg: string
 ) {
@@ -85,7 +92,7 @@ async function awaitQuery(
     if (!prod) {
       return err(new ApiError(404, notFoundMsg));
     }
-    return ok(prod);
+    return ok(toModel(prod));
   } catch (e) {
     return err(new ApiError(500, errorMsg));
   }

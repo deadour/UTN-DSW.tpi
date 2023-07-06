@@ -43,7 +43,7 @@ export default function ModalNuevoProducto() {
         title: "Producto creado.",
         description: `'${prod.nombre}' guardado correctamente.`,
         status: "success",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
       queryClient.refetchQueries(["productos"]);
@@ -54,7 +54,7 @@ export default function ModalNuevoProducto() {
         title: "Error al crear el producto.",
         description: `Intente de nuevo.`,
         status: "error",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
     },
@@ -72,12 +72,7 @@ export default function ModalNuevoProducto() {
 
   return (
     <>
-      <Button
-        onClick={onOpen}
-        margin="15px"
-        variant="outline"
-        colorScheme="green"
-      >
+      <Button onClick={onOpen} size="lg" variant="outline" colorScheme="green">
         Agregar producto nuevo
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>

@@ -55,7 +55,7 @@ export default function ModalEditarProducto({
         title: "Producto actualizado.",
         description: `'${prod.nombre}' actualizado correctamente.`,
         status: "success",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
       queryClient.refetchQueries(["productos"]);
@@ -66,7 +66,7 @@ export default function ModalEditarProducto({
         title: "Error al actualizar el producto.",
         description: `Intente de nuevo.`,
         status: "error",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
     },

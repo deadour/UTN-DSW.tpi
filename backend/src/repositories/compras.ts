@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, compra, lineaCompra, producto } from "@prisma/client";
 import { Result, ok, err } from "neverthrow";
 import { ApiError } from "../utils/apierrors.js";
 import { Compra } from "../models/compra.js";
@@ -28,7 +28,7 @@ export class PrismaCompraRepository implements CompraRepository {
           },
         },
       });
-      return ok(compras);
+      return ok(compras.map((c) => toModel(c)));
     } catch (e) {
       return err(new ApiError(500, "Error al intentar buscar las compras"));
     }
@@ -76,7 +76,7 @@ export class PrismaCompraRepository implements CompraRepository {
         },
       });
 
-      return ok(compraCreada);
+      return ok(toModel(compraCreada));
     } catch (error) {
       return err(new ApiError(500, "Error al crear la compra"));
     }
@@ -133,8 +133,23 @@ export class PrismaCompraRepository implements CompraRepository {
   }
 }
 
+function toModel(
+  compra: compra & { lineas: (lineaCompra & { producto: producto })[] }
+): Compra {
+  return {
+    ...compra,
+    lineas: compra.lineas.map((lc) => ({
+      ...lc,
+      precioUnitario: lc.precioUnitario.toNumber(),
+      producto: { ...lc.producto, precio: lc.producto.precio.toNumber() },
+    })),
+  };
+}
+
+type compraDB = compra & { lineas: (lineaCompra & { producto: producto })[] };
+
 async function awaitQuery(
-  promise: Promise<Compra | null>,
+  promise: Promise<compraDB | null>,
   notFoundMsg: string,
   errorMsg: string
 ): Promise<Result<Compra, ApiError>> {
@@ -143,7 +158,7 @@ async function awaitQuery(
     if (!compra) {
       return err(new ApiError(404, notFoundMsg));
     }
-    return ok(compra);
+    return ok(toModel(compra));
   } catch (e) {
     return err(new ApiError(500, errorMsg));
   }

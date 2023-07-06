@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCompras } from "../../utils/api/compras";
 import CardCompraList from "../../components/compra/CardCompraList";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 interface SearchState {
   proveedor: string;
@@ -70,6 +71,7 @@ function ComprasList({ search }: ComprasListProps) {
 }
 
 export default function ComprasPage() {
+  const { isAdmin } = useCurrentUser();
   const [search, setSearch] = useState<SearchState>({
     proveedor: "",
   });
@@ -91,11 +93,13 @@ export default function ComprasPage() {
 
   return (
     <>
-      <Link to="nueva">
-        <Button colorScheme="green" size="lg">
-          Nueva compra
-        </Button>
-      </Link>
+      {isAdmin && (
+        <Link to="nueva">
+          <Button colorScheme="green" size="lg">
+            Nueva compra
+          </Button>
+        </Link>
+      )}
       <Heading textAlign="center" fontSize="3rem" size="xl">
         Compras
       </Heading>

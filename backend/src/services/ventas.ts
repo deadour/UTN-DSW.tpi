@@ -66,6 +66,12 @@ export class VentaServiceImpl implements VentaService {
       return prodResult;
     }
     const prod = prodResult._unsafeUnwrap();
+
+    if (prod.stock < cant) {
+      return err(
+        new ApiError(409, `El stock de '${prod.nombre}' es insuficiente`)
+      );
+    }
     prod.stock -= cant;
 
     return await this.prodService.update(prod);

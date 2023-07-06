@@ -24,6 +24,7 @@ import { getProductos } from "../../utils/api/productos";
 import CardProductoList from "../../components/producto/CardProductoList";
 import ModalNuevoProducto from "../../components/producto/ModalNuevoProducto";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 interface FiltroCheckboxProps {
   label: string;
@@ -39,9 +40,96 @@ function FiltroCheckbox({ label, name, onChange }: FiltroCheckboxProps) {
   );
 }
 
+function FilterableSearchBox() {
+  const { setFilterCategs, setFilterStock, setSearch } = useProductoList();
+  const [checkedItems, setCheckedItems] = React.useState({
+    Galletitas: false,
+    Golosinas: false,
+    Bebidas: false,
+    Comidas: false,
+    "Lácteos": false,
+  });
+
+  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilterStock(e.target.checked);
+  };
+
+  const handleCategChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    const newCheckedItems = {
+      ...checkedItems,
+      [name]: checked,
+    };
+    setCheckedItems(newCheckedItems);
+    setFilterCategs(
+      Object.keys(newCheckedItems).filter(
+        (categ) => newCheckedItems[categ as keyof typeof newCheckedItems]
+      )
+    );
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
+  return (
+    <Card margin="20px auto 20px auto" maxWidth="1000px">
+      <CardHeader padding="10px 0 0 30px">
+        <Heading size="md">Filtros</Heading>
+      </CardHeader>
+      <CardBody width="100%" padding="3">
+        <HStack gap="5" justify="space-between" margin="0 15px 0 15px">
+          <Box border="lightgrey solid 1px" borderRadius="10" padding="2">
+            <Checkbox size="lg" onChange={handleStockChange}>
+              Solo con stock
+            </Checkbox>
+          </Box>
+          <FiltroCheckbox
+            label="Golosinas"
+            name="Golosinas"
+            onChange={handleCategChange}
+          />
+          <FiltroCheckbox
+            label="Galletitas"
+            name="Galletitas"
+            onChange={handleCategChange}
+          />
+          <FiltroCheckbox
+            label="Comidas"
+            name="Comidas"
+            onChange={handleCategChange}
+          />
+          <FiltroCheckbox
+            label="Bebidas"
+            name="Bebidas"
+            onChange={handleCategChange}
+          />
+          <FiltroCheckbox
+            label="Lácteos"
+            name="Lácteos"
+            onChange={handleCategChange}
+          />
+        </HStack>
+        <FormControl
+          id="search"
+          variant="floating"
+          marginLeft="15px"
+          marginTop="15px"
+          paddingRight="15px"
+          onChange={handleSearchChange}
+        >
+          <Input placeholder="Producto..." name="search" />
+          <FormLabel>Buscar producto</FormLabel>
+        </FormControl>
+      </CardBody>
+    </Card>
+  );
+}
+
 function ProductoList() {
   const { data, isLoading, isError } = useQuery(["productos"], getProductos);
   const { productos, newProductos } = useProductoList();
+  const { isAdmin } = useCurrentUser();
 
   useEffect(() => {
     if (data) {
@@ -75,87 +163,14 @@ function ProductoList() {
     );
   }
 
-  return <CardProductoList productos={productos} puedeEditar />;
-}
-
-function FilterableSearchBox() {
-  const { setFilterCategs, setFilterStock, setSearch } = useProductoList();
-  const [checkedItems, setCheckedItems] = React.useState({
-    Bebidas: false,
-    Comidas: false,
-    Golosinas: false,
-  });
-
-  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilterStock(e.target.checked);
-  };
-
-  const handleCategChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    const newCheckedItems = {
-      ...checkedItems,
-      [name]: checked,
-    };
-    setCheckedItems(newCheckedItems);
-    setFilterCategs(
-      Object.keys(newCheckedItems).filter(
-        (categ) => newCheckedItems[categ as keyof typeof newCheckedItems]
-      )
-    );
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  };
-
-  return (
-    <Card margin="20px 0 20px 0">
-      <CardHeader padding="10px 0 0 30px">
-        <Heading size="md">Filtros</Heading>
-      </CardHeader>
-      <CardBody width="100%" padding="3">
-        <HStack gap="5" justify="space-between" margin="0 15px 0 15px">
-          <Box border="lightgrey solid 1px" borderRadius="10" padding="2">
-            <Checkbox size="lg" onChange={handleStockChange}>
-              Solo con stock
-            </Checkbox>
-          </Box>
-          <FiltroCheckbox
-            label="Bebidas"
-            name="Bebidas"
-            onChange={handleCategChange}
-          />
-          <FiltroCheckbox
-            label="Golosinas"
-            name="Golosinas"
-            onChange={handleCategChange}
-          />
-          <FiltroCheckbox
-            label="Comidas"
-            name="Comidas"
-            onChange={handleCategChange}
-          />
-        </HStack>
-        <FormControl
-          id="search"
-          variant="floating"
-          marginLeft="15px"
-          marginTop="15px"
-          paddingRight="15px"
-          onChange={handleSearchChange}
-        >
-          <Input placeholder="Producto..." name="search" />
-          <FormLabel>Buscar producto</FormLabel>
-        </FormControl>
-      </CardBody>
-    </Card>
-  );
+  return <CardProductoList productos={productos} puedeEditar={isAdmin} />;
 }
 
 export default function ProductosPage() {
+  const { isAdmin } = useCurrentUser();
   return (
     <ProductoListProvider>
-      <ModalNuevoProducto />
+      {isAdmin && <ModalNuevoProducto />}
       <Heading textAlign="center" fontSize="3rem">
         Productos
       </Heading>

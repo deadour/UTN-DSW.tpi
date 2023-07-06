@@ -14,6 +14,7 @@ export default function CardProducto({
   onClick,
 }: CardProductoProps) {
   const { hoverRef, isHovering } = useHover<HTMLDivElement>();
+
   return (
     <Card
       maxW="13rem"
@@ -38,7 +39,7 @@ export default function CardProducto({
           <Text size="sm" color="darkgray" align="center">
             {producto.categoria}
           </Text>
-          <Text align="center">{producto.precio}$</Text>
+          <Text align="center">{producto.precio} $</Text>
           <Text align="center">Stock: {producto.stock}</Text>
         </Stack>
       </CardBody>

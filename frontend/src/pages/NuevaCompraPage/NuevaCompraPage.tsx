@@ -5,6 +5,9 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Editable,
+  EditableInput,
+  EditablePreview,
   FormControl,
   FormLabel,
   HStack,
@@ -39,19 +42,30 @@ interface LineaCompraInputProps {
 }
 
 function LineaCompraInput({ linea, onChange }: LineaCompraInputProps) {
+  const handlePrecioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange({ ...linea, precioUnitario: Number(e.target.value) });
+  };
   return (
     <Tr>
       <Td fontWeight="bold">{linea.producto.nombre}</Td>
-      <Td isNumeric>{linea.precioUnitario}$</Td>
+      <Td isNumeric>
+        <Editable
+          display="inline"
+          defaultValue={linea.precioUnitario.toFixed(2)}
+        >
+          <EditablePreview />
+          <EditableInput
+            type="number"
+            onChange={handlePrecioChange}
+            width="75px"
+          />
+        </Editable>{" "}
+        $
+      </Td>
       <Td isNumeric>{linea.cantidad}</Td>
       <Td>
         <Button
-          onClick={() => onChange({ ...linea, cantidad: linea.cantidad + 1 })}
-        >
-          +
-        </Button>
-        <Button
-          marginLeft="10px"
+          marginRight="10px"
           onClick={() =>
             onChange({
               ...linea,
@@ -60,6 +74,11 @@ function LineaCompraInput({ linea, onChange }: LineaCompraInputProps) {
           }
         >
           -
+        </Button>
+        <Button
+          onClick={() => onChange({ ...linea, cantidad: linea.cantidad + 1 })}
+        >
+          +
         </Button>
       </Td>
     </Tr>
@@ -85,7 +104,7 @@ function NuevaCompraPage() {
         title: "Compra realizada.",
         description: `Compra registrada correctamente.`,
         status: "success",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
       navigate(-1);
@@ -95,7 +114,7 @@ function NuevaCompraPage() {
         title: "Error al crear la compra.",
         description: `Intente de nuevo.`,
         status: "error",
-        duration: 3000,
+        duration: 6000,
         isClosable: true,
       });
     },
@@ -195,6 +214,7 @@ function NuevaCompraPage() {
                     {state.lineas.map((l) => (
                       <LineaCompraInput
                         linea={l}
+                        key={l.linea}
                         onChange={handleLineaChange}
                       />
                     ))}
@@ -202,7 +222,7 @@ function NuevaCompraPage() {
                 </Table>
               </TableContainer>
               <Text alignSelf="flex-start" marginLeft="60px">
-                Precio total: {precioTotal.toFixed(2)}$
+                Precio total: {precioTotal.toFixed(2)} $
               </Text>
               <HStack>
                 <Button variant="secondary" onClick={() => navigate(-1)}>

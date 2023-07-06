@@ -1,30 +1,39 @@
+import { BsCart2, BsTags } from "react-icons/bs";
 import CardElement from "../../components/CardElement/CardElement";
-import { Heading } from "@chakra-ui/react";
+import { Stack, Heading } from "@chakra-ui/react";
+import { PiPackage } from "react-icons/pi";
 
 function HomePage() {
   const vistas = [
     {
       title: "Productos",
-      desc: "Ver los productos en stock.",
-      img: "",
+      desc: [
+        "Ver los productos en stock.",
+        "Agregar un producto nuevo.",
+        "Modificar un producto.",
+      ],
+      icon: PiPackage,
       url: "/productos",
     },
     {
       title: "Ventas",
-      desc: "Ver todas las ventas realizadas.",
-      img: "",
+      desc: ["Ver todas las ventas realizadas.", "Registrar una venta nueva."],
+      icon: BsTags,
       url: "/ventas",
     },
     {
       title: "Compras",
-      desc: "Ver todas las compras realizadas.",
-      img: "",
+      desc: [
+        "Ver todas las compras realizadas.",
+        "Registrar una compra nueva.",
+      ],
+      icon: BsCart2,
       url: "/compras",
     },
   ];
 
   const tarjetas = vistas.map((v) => {
-    return <CardElement {...v} />;
+    return <CardElement {...v} key={v.title} />;
   });
 
   return (
@@ -43,7 +52,16 @@ function HomePage() {
           marginTop: "3rem",
         }}
       >
-        {tarjetas}
+        <Stack
+          flexGrow="1"
+          direction={{ base: "column", sm: "row" }}
+          height="fit-content"
+          justify="center"
+          align="center"
+          spacing="30px"
+        >
+          {tarjetas}
+        </Stack>
       </div>
     </>
   );

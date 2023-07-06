@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import {
   createBrowserRouter,
+  Navigate,
   RouteObject,
   RouterProvider,
 } from "react-router-dom";
@@ -15,10 +16,21 @@ import NuevaCompraPage from "./pages/NuevaCompraPage/NuevaCompraPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NuevaVentaPage from "./pages/NuevaVentaPage/NuevaVentaPage";
 import NavBar from "./components/NavBar/NavBar";
+import LoginPage from "./pages/LoginPage.tsx/LoginPage";
+import { CurrentUserProvider } from "./hooks/useCurrentUser";
+import InformesPage from "./pages/InformesPage/InformesPage";
 
 const routes: RouteObject[] = [
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
     path: "/",
+    element: <Navigate to="/login" />,
+  },
+  {
+    path: "/*",
     element: <NavBar />,
     children: [
       {
@@ -44,6 +56,10 @@ const routes: RouteObject[] = [
       {
         path: "compras/nueva",
         element: <NuevaCompraPage />,
+      },
+      {
+        path: "informes",
+        element: <InformesPage />,
       },
       // {
       //   path: "/EditarCompra",
@@ -100,12 +116,15 @@ const queryClient = new QueryClient();
 
 function App() {
   useEffect(() => {
-    document.title = "Pedro's Bar"; // Cambia el título del head
+    document.title = "El Bar de Pedro"; // Cambia el título del head
   }, []);
+
   return (
     <ChakraProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <CurrentUserProvider>
+          <RouterProvider router={router} />
+        </CurrentUserProvider>
       </QueryClientProvider>
     </ChakraProvider>
   );

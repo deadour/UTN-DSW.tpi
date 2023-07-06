@@ -35,8 +35,8 @@ function TrLineaCompra({
       <Td isNumeric>{linea}</Td>
       <Td fontWeight="bold">{producto.nombre}</Td>
       <Td isNumeric>{cantidad}</Td>
-      <Td isNumeric>{precioUnitario}$</Td>
-      <Td isNumeric>{precioTotal.toFixed(2)}$</Td>
+      <Td isNumeric>{precioUnitario} $</Td>
+      <Td isNumeric>{precioTotal.toFixed(2)} $</Td>
     </Tr>
   );
 }
@@ -62,7 +62,7 @@ export default function CardCompra({ id, fecha, lineas, proveedor }: Compra) {
           <HStack justify="space-between">
             <Text colorScheme="gray">N° {id}</Text>
             <Text>{new Date(fecha).toLocaleString()}</Text>
-            <Badge fontSize="md">Total: {precioTotal.toFixed(2)}$</Badge>
+            <Badge fontSize="md">Total: {precioTotal.toFixed(2)} $</Badge>
           </HStack>
         </CardBody>
         <CardFooter>
